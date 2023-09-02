@@ -12,7 +12,7 @@ use super::{
     errors::MarkdownParseError,
     parsers::{attribute, heading, parse_inline, task},
 };
-use crate::models::{MDPError, Token, MarkdownTokenizer};
+use crate::models::{MDPError, MarkdownTokenizer, Token};
 
 pub struct MDPMarkdownTokenizer {}
 
@@ -74,7 +74,6 @@ fn parse_line(input: Line<'_>) -> Result<Vec<Token<'_>>, MarkdownParseError<&str
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use anyhow::Result;
@@ -117,9 +116,9 @@ TODO: Inform roger about the state of the project
         let should_tokens = vec![
             Token::Blank,
             Token::Newline,
-            Token::HeadingH1(vec![
-                Token::Date(NaiveDate::from_ymd_opt(2022, 11, 2).unwrap())
-            ]),
+            Token::HeadingH1(vec![Token::Date(
+                NaiveDate::from_ymd_opt(2022, 11, 2).unwrap(),
+            )]),
             Token::Newline,
             Token::Blank,
             Token::Newline,
@@ -143,16 +142,20 @@ TODO: Inform roger about the state of the project
             Token::Newline,
             Token::Blank,
             Token::Newline,
-            Token::Task { content: vec![Token::Text("Clean room")], status: TaskStatus::Done },
+            Token::Task {
+                content: vec![Token::Text("Clean room")],
+                status: TaskStatus::Done,
+            },
             Token::Newline,
             Token::Blank,
             Token::Newline,
             Token::HRule,
             Token::Newline,
             Token::Blank,
-            Token::Newline,Token::HeadingH1(vec![
-                Token::Date(NaiveDate::from_ymd_opt(2022, 11, 3).unwrap())
-            ]),
+            Token::Newline,
+            Token::HeadingH1(vec![Token::Date(
+                NaiveDate::from_ymd_opt(2022, 11, 3).unwrap(),
+            )]),
             Token::Newline,
             Token::Blank,
             Token::Newline,
@@ -168,19 +171,16 @@ TODO: Inform roger about the state of the project
             Token::Newline,
             Token::Blank,
             Token::Newline,
-            Token::Task { 
-                content: vec![Token::Text("Inform roger about the state of the project")], 
-                status: TaskStatus::Todo, 
+            Token::Task {
+                content: vec![Token::Text("Inform roger about the state of the project")],
+                status: TaskStatus::Todo,
             },
             Token::Newline,
             Token::Blank,
             Token::Newline,
         ];
 
-        assert_eq!(
-            mdp_tokenizer.tokenize(&markdown_string),
-            Ok(should_tokens),
-        );
+        assert_eq!(mdp_tokenizer.tokenize(&markdown_string), Ok(should_tokens),);
         Ok(())
     }
 }

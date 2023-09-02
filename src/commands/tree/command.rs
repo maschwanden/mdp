@@ -6,9 +6,7 @@ use ptree::{write_tree, TreeBuilder};
 use super::config::TreeConfig;
 use crate::{
     commands::io::{FileReader, OutputWriter},
-    models::{
-        Token, TokenType, MarkdownTokenizer, Section, SectionBuilder,
-    },
+    models::{MarkdownTokenizer, Section, SectionBuilder, Token, TokenType},
 };
 
 pub fn run<T, S, R>(

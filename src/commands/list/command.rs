@@ -5,7 +5,7 @@ use anyhow::Result;
 use super::config::{TagListConfig, TagOrderingCriterion};
 use crate::{
     commands::io::{FileReader, OutputWriter},
-    models::{Token, MarkdownTokenizer},
+    models::{MarkdownTokenizer, Token},
 };
 
 pub fn run<T, R>(

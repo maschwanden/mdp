@@ -7,5 +7,8 @@ pub trait MarkdownTokenizer {
 
 pub trait SectionBuilder {
     /// Create sections from Markdown tokens
-    fn sections_from_tokens<'a>(&self, tokens: Vec<Token<'a>>) -> Result<Vec<Section<'a>>, MDPError>;
+    fn sections_from_tokens<'a>(
+        &self,
+        tokens: Vec<Token<'a>>,
+    ) -> Result<Vec<Section<'a>>, MDPError>;
 }

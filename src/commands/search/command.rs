@@ -25,7 +25,7 @@ where
     let markdown_string = reader.read_file(config.input_path.clone())?;
     let tokens = tokenizer.tokenize(&markdown_string)?;
     let sections = section_builder.sections_from_tokens(tokens)?;
-    
+
     let results = search(
         sections,
         config.search_terms,

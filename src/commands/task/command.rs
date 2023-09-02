@@ -4,9 +4,7 @@ use chrono::{NaiveDate, Utc};
 use super::config::{TaskConfig, TaskFilterType, TaskOrderingCriterion};
 use crate::{
     commands::io::{FileReader, OutputWriter},
-    models::{
-        Token, MarkdownTokenizer, TaskStatus,
-    },
+    models::{MarkdownTokenizer, TaskStatus, Token},
 };
 
 pub fn run<T, R>(
@@ -68,22 +66,29 @@ impl<'a> Task<'a> {
                     days_until.abs() * 100
                 };
                 30 + urgency as usize
-            },
+            }
         }
     }
 }
 
 impl<'a> From<&Task<'a>> for Token<'a> {
     fn from(value: &Task<'a>) -> Self {
-        Token::Task { content: value.content.clone(), status: value.status.clone() }
+        Token::Task {
+            content: value.content.clone(),
+            status: value.status.clone(),
+        }
     }
 }
 
 fn tasks_from_tokens(tokens: Vec<Token>) -> Vec<Task> {
-    tokens.iter()
+    tokens
+        .iter()
         .filter_map(|t| match t {
-        Token::Task { content, status } => Some(Task{content: content.to_owned(), status: status.to_owned()}),
-        _ => None,
+            Token::Task { content, status } => Some(Task {
+                content: content.to_owned(),
+                status: status.to_owned(),
+            }),
+            _ => None,
         })
         .collect()
 }
@@ -92,7 +97,11 @@ fn filter_tasks(tasks: Vec<Task>, filter: TaskFilterType) -> Vec<Task> {
     match filter {
         TaskFilterType::All => tasks,
         TaskFilterType::Finished => tasks.iter().filter(|t| t.is_finished()).cloned().collect(),
-        TaskFilterType::Unfinished => tasks.iter().filter(|t| t.is_unfinished()).cloned().collect(),
+        TaskFilterType::Unfinished => tasks
+            .iter()
+            .filter(|t| t.is_unfinished())
+            .cloned()
+            .collect(),
     }
 }
 
@@ -101,12 +110,15 @@ fn order_tasks(tasks: Vec<Task>, ordering: TaskOrderingCriterion) -> Vec<Task> {
         TaskOrderingCriterion::Occurence => tasks,
         TaskOrderingCriterion::Urgency => {
             let mut ordered_tasks = tasks.clone();
-            ordered_tasks.sort_by_key(|t| t.urgency()); 
+            ordered_tasks.sort_by_key(|t| t.urgency());
             ordered_tasks
-        },
+        }
     }
 }
 
-fn tasks_as_strings(tasks:  Vec<Task>) -> Vec<String> {
-    tasks.iter().map(|t| Token::from(t).to_markdown_string()).collect()
+fn tasks_as_strings(tasks: Vec<Task>) -> Vec<String> {
+    tasks
+        .iter()
+        .map(|t| Token::from(t).to_markdown_string())
+        .collect()
 }

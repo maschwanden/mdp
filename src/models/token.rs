@@ -249,12 +249,8 @@ impl<'a> Token<'a> {
 
             Token::Attribute { .. } => TokenType::Attribute,
             Token::Image { .. } => TokenType::Image,
-            Token::MarkdownExternalLink { .. } => {
-                TokenType::MarkdownInternalLink
-            }
-            Token::MarkdownInternalLink { .. } => {
-                TokenType::MarkdownInternalLink
-            }
+            Token::MarkdownExternalLink { .. } => TokenType::MarkdownInternalLink,
+            Token::MarkdownInternalLink { .. } => TokenType::MarkdownInternalLink,
             Token::Task { .. } => TokenType::Task,
         }
     }
@@ -388,10 +384,7 @@ mod tests {
     #[test]
     fn test_display_latex() {
         let input = r#"$$x^2 = x \cdot x$$"#;
-        assert_eq!(
-            Token::Latex(r#"x^2 = x \cdot x"#).to_string(),
-            input
-        )
+        assert_eq!(Token::Latex(r#"x^2 = x \cdot x"#).to_string(), input)
     }
 
     #[test]
@@ -418,10 +411,7 @@ mod tests {
     #[test]
     fn test_display_single_backtick() {
         let input = r"`javascript\nmap`";
-        assert_eq!(
-            Token::SingleBacktick(r"javascript\nmap").to_string(),
-            input
-        );
+        assert_eq!(Token::SingleBacktick(r"javascript\nmap").to_string(), input);
     }
 
     #[test]
@@ -453,10 +443,7 @@ mod tests {
     #[test]
     fn test_display_bold() {
         let input = "**abc**";
-        assert_eq!(
-            Token::Bold(vec![Token::Text("abc")]).to_string(),
-            input
-        );
+        assert_eq!(Token::Bold(vec![Token::Text("abc")]).to_string(), input);
 
         let _input = "**abc [spiped](https://www.tarsnap.com/spiped.html)**";
         assert_eq!(
@@ -484,19 +471,13 @@ mod tests {
     #[test]
     fn test_display_italic() {
         let input = "*abc*";
-        assert_eq!(
-            Token::Italic(vec![Token::Text("abc")]).to_string(),
-            input
-        );
+        assert_eq!(Token::Italic(vec![Token::Text("abc")]).to_string(), input);
     }
 
     #[test]
     fn test_display_strike() {
         let input = "~~abc~~";
-        assert_eq!(
-            Token::Strike(vec![Token::Text("abc")]).to_string(),
-            input
-        );
+        assert_eq!(Token::Strike(vec![Token::Text("abc")]).to_string(), input);
     }
 
     #[test]
@@ -519,8 +500,7 @@ mod tests {
     fn test_display_simple_heading() {
         let input = "# Source:: some blog";
         assert_eq!(
-            Token::HeadingH1(vec![Token::Text("Source:: some blog")],)
-                .to_string(),
+            Token::HeadingH1(vec![Token::Text("Source:: some blog")],).to_string(),
             input,
         )
     }

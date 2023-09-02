@@ -8,7 +8,8 @@ use mdp::{
     commands::{
         list::config::TagListConfig,
         search::config::{SearchTerm, TagSearchConfig},
-        tree::config::TreeConfig, task::config::TaskConfig,
+        task::config::TaskConfig,
+        tree::config::TreeConfig,
     },
     models::ConfigError,
 };
@@ -152,7 +153,6 @@ impl TryFrom<TokenTreeCommandArgs> for TreeConfig {
         })
     }
 }
-
 
 /// Show all tasks (TODO, TODO UNTIL <DATE>, DOING, REVIEW, DONE)
 #[derive(Args, Debug, Clone)]

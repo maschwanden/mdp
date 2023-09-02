@@ -47,7 +47,6 @@ impl From<SectionOrderingCriterion> for search::config::SectionOrderingCriterion
     }
 }
 
-
 #[derive(Clone, Debug, ValueEnum)]
 pub enum TaskOrderingCriterion {
     // Type,

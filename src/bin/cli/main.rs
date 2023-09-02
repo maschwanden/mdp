@@ -9,7 +9,7 @@ use crate::args::{CliArgs, Command};
 use mdp::{
     commands::{
         io::{FileWriter, MarkdownFileReader, OutputWriter, StdoutWriter},
-        list, search, tree, task,
+        list, search, task, tree,
     },
     markdown::{MDPMarkdownTokenizer, MDPSectionBuilder},
 };

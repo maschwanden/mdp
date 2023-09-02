@@ -20,7 +20,7 @@ use nom::{
 use urlocator::{UrlLocation, UrlLocator};
 
 use super::errors::MarkdownParseError;
-use crate::models::{Token, TaskStatus};
+use crate::models::{TaskStatus, Token};
 
 /// Take a string delimited by some characters, but track how many times the delimiter pairs
 /// themselves also appear in the string.
@@ -78,7 +78,7 @@ fn nonws_char(c: char) -> bool {
 fn is_word_finish_char(c: char) -> bool {
     match c {
         ',' | '.' | ':' | ';' | ')' | ']' => true,
-        _ => false
+        _ => false,
     }
 }
 
@@ -174,7 +174,7 @@ fn email(input: &str) -> IResult<&str, &str, MarkdownParseError<&str>> {
             None => continue,
         };
 
-        // Note: To exclude some false positives we ignore the fact that email address 
+        // Note: To exclude some false positives we ignore the fact that email address
         // can contain whitespaces!
         if current_input.contains(" ") {
             continue;
@@ -243,9 +243,7 @@ fn directive(input: &str) -> IResult<&str, Token, MarkdownParseError<&str>> {
 }
 
 /// Parse a line of text, counting anything that doesn't match a directive as plain text.
-pub(super) fn parse_inline(
-    input: &str,
-) -> IResult<&str, Vec<Token>, MarkdownParseError<&str>> {
+pub(super) fn parse_inline(input: &str) -> IResult<&str, Vec<Token>, MarkdownParseError<&str>> {
     let mut output = Vec::with_capacity(4);
 
     let mut current_input = input;
@@ -295,11 +293,28 @@ pub(super) fn attribute(
 pub(super) fn task(input: &str) -> IResult<&str, Token, MarkdownParseError<&str>> {
     let (task_description, task) = terminated(
         alt((
-            map(tag("TODO:"), |_| Token::Task { content: vec![], status: TaskStatus::Todo }),
-            map(tag("DOING:"), |_| Token::Task { content: vec![], status: TaskStatus::Doing }),
-            map(tag("REVIEW:"), |_| Token::Task { content: vec![], status: TaskStatus::Review }),
-            map(tag("DONE:"), |_| Token::Task { content: vec![], status: TaskStatus::Done }),
-            map(tuple((tag("TODO UNTIL "), date, tag(":"))), |(_, d, _)| Token::Task { content: vec![], status: TaskStatus::TodoUntil(d) })
+            map(tag("TODO:"), |_| Token::Task {
+                content: vec![],
+                status: TaskStatus::Todo,
+            }),
+            map(tag("DOING:"), |_| Token::Task {
+                content: vec![],
+                status: TaskStatus::Doing,
+            }),
+            map(tag("REVIEW:"), |_| Token::Task {
+                content: vec![],
+                status: TaskStatus::Review,
+            }),
+            map(tag("DONE:"), |_| Token::Task {
+                content: vec![],
+                status: TaskStatus::Done,
+            }),
+            map(tuple((tag("TODO UNTIL "), date, tag(":"))), |(_, d, _)| {
+                Token::Task {
+                    content: vec![],
+                    status: TaskStatus::TodoUntil(d),
+                }
+            }),
         )),
         multispace1,
     )(input)?;
@@ -308,10 +323,9 @@ pub(super) fn task(input: &str) -> IResult<&str, Token, MarkdownParseError<&str>
         Token::Task { status, .. } => {
             let (_, content) = parse_inline(task_description)?;
             Ok(("", Token::Task { content, status }))
-        },
+        }
         _ => unreachable!(),
     }
-   
 }
 
 pub(super) fn heading(input: &str) -> IResult<&str, Token, MarkdownParseError<&str>> {
@@ -397,9 +411,7 @@ mod tests {
         let (remaining_input, tokens) = parse_inline("2013-03-08").unwrap();
         assert_eq!(
             tokens,
-            vec![Token::Date(
-                NaiveDate::from_ymd_opt(2013, 3, 8).unwrap()
-            )]
+            vec![Token::Date(NaiveDate::from_ymd_opt(2013, 3, 8).unwrap())]
         );
         assert_eq!(remaining_input, "");
     }
@@ -407,10 +419,7 @@ mod tests {
     #[test]
     fn test_parse_inline_email() {
         let (remaining_input, tokens) = parse_inline("mathias.aschwanden@gmail.com").unwrap();
-        assert_eq!(
-            tokens,
-            vec![Token::Email("mathias.aschwanden@gmail.com")]
-        );
+        assert_eq!(tokens, vec![Token::Email("mathias.aschwanden@gmail.com")]);
         assert_eq!(remaining_input, "");
     }
 
@@ -419,11 +428,7 @@ mod tests {
         let (remaining_input, tokens) = parse_inline("@rega @bafu").unwrap();
         assert_eq!(
             tokens,
-            vec![
-                Token::Tag("rega"),
-                Token::Text(" "),
-                Token::Tag("bafu")
-            ]
+            vec![Token::Tag("rega"), Token::Text(" "), Token::Tag("bafu")]
         );
         assert_eq!(remaining_input, "");
     }
@@ -479,10 +484,7 @@ mod tests {
     #[test]
     fn test_parse_inline_bold() {
         let (remaining_input, tokens) = parse_inline("**Haha**").unwrap();
-        assert_eq!(
-            tokens,
-            vec![Token::Bold(vec![Token::Text("Haha")])]
-        );
+        assert_eq!(tokens, vec![Token::Bold(vec![Token::Text("Haha")])]);
         assert_eq!(remaining_input, "");
     }
 
@@ -502,24 +504,14 @@ mod tests {
     #[test]
     fn test_parse_inline_strike() {
         let (remaining_input, tokens) = parse_inline("~~link123~~").unwrap();
-        assert_eq!(
-            tokens,
-            vec![Token::Strike(vec![Token::Text(
-                "link123"
-            )])]
-        );
+        assert_eq!(tokens, vec![Token::Strike(vec![Token::Text("link123")])]);
         assert_eq!(remaining_input, "");
     }
 
     #[test]
     fn test_parse_inline_highlight() {
         let (remaining_input, tokens) = parse_inline("^^link123^^").unwrap();
-        assert_eq!(
-            tokens,
-            vec![Token::Highlight(vec![Token::Text(
-                "link123"
-            )])]
-        );
+        assert_eq!(tokens, vec![Token::Highlight(vec![Token::Text("link123")])]);
         assert_eq!(remaining_input, "");
     }
 
@@ -533,10 +525,7 @@ mod tests {
     #[test]
     fn test_parse_inline_raw_hyperlink() {
         let (remaining_input, tokens) = parse_inline("https://example.org").unwrap();
-        assert_eq!(
-            tokens,
-            vec![Token::RawHyperlink("https://example.org")]
-        );
+        assert_eq!(tokens, vec![Token::RawHyperlink("https://example.org")]);
         assert_eq!(remaining_input, "");
     }
 
@@ -547,10 +536,7 @@ mod tests {
         assert_eq!(attribute_name, "attr123",);
         assert_eq!(
             tokens,
-            vec![
-                Token::Text(" "),
-                Token::RawHyperlink("https://google.com")
-            ]
+            vec![Token::Text(" "), Token::RawHyperlink("https://google.com")]
         );
         assert_eq!(remaining_input, "");
     }
@@ -623,40 +609,28 @@ mod tests {
     #[test]
     fn test_heading_h1() {
         let (remaining_input, tokens) = heading("# Titel").unwrap();
-        assert_eq!(
-            tokens,
-            Token::HeadingH1(vec![Token::Text("Titel")]),
-        );
+        assert_eq!(tokens, Token::HeadingH1(vec![Token::Text("Titel")]),);
         assert_eq!(remaining_input, "");
     }
 
     #[test]
     fn test_heading_h2() {
         let (remaining_input, tokens) = heading("## Titel").unwrap();
-        assert_eq!(
-            tokens,
-            Token::HeadingH2(vec![Token::Text("Titel")]),
-        );
+        assert_eq!(tokens, Token::HeadingH2(vec![Token::Text("Titel")]),);
         assert_eq!(remaining_input, "");
     }
 
     #[test]
     fn test_heading_h3() {
         let (remaining_input, tokens) = heading("### Titel").unwrap();
-        assert_eq!(
-            tokens,
-            Token::HeadingH3(vec![Token::Text("Titel")]),
-        );
+        assert_eq!(tokens, Token::HeadingH3(vec![Token::Text("Titel")]),);
         assert_eq!(remaining_input, "");
     }
 
     #[test]
     fn test_heading_h4() {
         let (remaining_input, tokens) = heading("#### Titel").unwrap();
-        assert_eq!(
-            tokens,
-            Token::HeadingH4(vec![Token::Text("Titel")]),
-        );
+        assert_eq!(tokens, Token::HeadingH4(vec![Token::Text("Titel")]),);
         assert_eq!(remaining_input, "");
     }
 
@@ -685,14 +659,8 @@ mod tests {
 
     #[test]
     fn test_word() {
-        assert_eq!(
-            word("roger"),
-            Ok(("", "roger")),
-        );
+        assert_eq!(word("roger"), Ok(("", "roger")),);
 
-        assert_eq!(
-            word("roger."),
-            Ok((".", "roger")),
-        );
+        assert_eq!(word("roger."), Ok((".", "roger")),);
     }
 }
