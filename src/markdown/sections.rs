@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 
 use crate::models::{
     MDPError, Token, TokenType, Section,
-    SectionBuilder, SectionType, Sections,
+    SectionBuilder, SectionType,
 };
 
 use chrono::NaiveDate;
@@ -15,7 +15,7 @@ impl SectionBuilder for MDPSectionBuilder {
     fn sections_from_tokens<'a>(
         &self,
         tokens: Vec<Token<'a>>,
-    ) -> Result<Sections<'a>, MDPError> {
+    ) -> Result<Vec<Section<'a>>, MDPError> {
         let hierarchized_tokens = hierarchize_tokens_using_headings(tokens);
         sections_from_hierarchized_tokens(
             hierarchized_tokens, 
@@ -27,7 +27,7 @@ impl SectionBuilder for MDPSectionBuilder {
 fn sections_from_hierarchized_tokens(
     hierachical_tokens: Vec<HierarchicalToken>,
     parent_date: Option<NaiveDate>,
-) -> Result<Sections, MDPError> {
+) -> Result<Vec<Section>, MDPError> {
     let mut sections: Vec<Section> = vec![];
 
     for token in hierachical_tokens {
@@ -101,7 +101,7 @@ fn sections_from_hierarchized_tokens(
         });
     }
 
-    Ok(Sections::new(sections))
+    Ok(sections)
 }
 
 fn hierarchize_tokens_using_headings(tokens: Vec<Token>) -> Vec<HierarchicalToken> {
@@ -350,81 +350,171 @@ impl TokenHierarchy {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use anyhow::Result;
+    use chrono::NaiveDate;
+    use pretty_assertions::assert_eq;
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use pretty_assertions::assert_eq;
+    use crate::models::TaskStatus;
 
-//     #[test]
-//     fn test_buildup_hierarchy1() {
-//         let mut tokens = vec![
-//             heading_token("Titel H1", 1),
-//             MarkdownElement::Text("Text H1"),
-//             heading_token("Titel H3", 3),
-//             MarkdownElement::Text("Text H3"),
-//             heading_token("Titel H4", 4),
-//             MarkdownElement::Text("Text H4"),
-//             heading_token("Titel H3", 3),
-//             MarkdownElement::Text("Text H3"),
-//             heading_token("Titel H2", 2),
-//             MarkdownElement::Text("Text H2"),
-//         ];
+    use super::*;
 
-//         let tokens: Vec<Token> = tokens
-//             .drain(0..)
-//             .map(|t| Token::from_markdown_element(t))
-//             .collect();
+    #[test]
+    fn test_mdp_section_builder() -> Result<()> {
+        let mdp_section_builder = MDPSectionBuilder {};
 
-//         let hierarchy = MarkdownElementHierarchy::from_markdown_element_types(vec![
-//             MarkdownElementType::HeadingH1,
-//             MarkdownElementType::HeadingH2,
-//             MarkdownElementType::HeadingH3,
-//             MarkdownElementType::HeadingH4,
-//         ]);
-
-//         assert_eq!(
-//             MDPMarkdownHierarchizer {}.hierarchize(hierarchy, tokens).0,
-//             vec![Token {
-//                 markdown_element: heading_token("Titel H1", 1),
-//                 children: vec![
-//                     Token::from_markdown_element(MarkdownElement::Text("Text H1")),
-//                     Token {
-//                         markdown_element: heading_token("Titel H3", 3),
-//                         children: vec![
-//                             Token::from_markdown_element(MarkdownElement::Text("Text H3")),
-//                             Token {
-//                                 markdown_element: heading_token("Titel H4", 4),
-//                                 children: vec![Token::from_markdown_element(
-//                                     MarkdownElement::Text("Text H4")
-//                                 ),]
-//                             },
-//                         ]
-//                     },
-//                     Token {
-//                         markdown_element: heading_token("Titel H3", 3),
-//                         children: vec![Token::from_markdown_element(MarkdownElement::Text(
-//                             "Text H3"
-//                         )),]
-//                     },
-//                     Token {
-//                         markdown_element: heading_token("Titel H2", 2),
-//                         children: vec![Token::from_markdown_element(MarkdownElement::Text(
-//                             "Text H2"
-//                         )),]
-//                     },
-//                 ]
-//             },],
-//         );
-//     }
-
-//     fn heading_token<'a>(t: &'a str, heading_type: usize) -> MarkdownElement<'a> {
-//         match heading_type {
-//             1 => MarkdownElement::HeadingH1(vec![MarkdownElement::Text(t)]),
-//             2 => MarkdownElement::HeadingH2(vec![MarkdownElement::Text(t)]),
-//             3 => MarkdownElement::HeadingH3(vec![MarkdownElement::Text(t)]),
-//             4 => MarkdownElement::HeadingH4(vec![MarkdownElement::Text(t)]),
-//             _ => panic!("Can only generate H1, H2, H3, and H4 headings."),
-//         }
-//     }
-// }
+        let tokens = vec![
+            Token::Blank,
+            Token::Newline,
+            Token::HeadingH1(vec![
+                Token::Date(NaiveDate::from_ymd_opt(2022, 11, 2).unwrap())
+            ]),
+            Token::Newline,
+            Token::Blank,
+            Token::Newline,
+            Token::HeadingH2(vec![Token::Text("School")]),
+            Token::Newline,
+            Token::Blank,
+            Token::Newline,
+            Token::Tag("school"),
+            Token::Newline,
+            Token::Blank,
+            Token::Newline,
+            Token::Text("Today in school something happened."),
+            Token::Newline,
+            Token::Blank,
+            Token::Newline,
+            Token::HeadingH2(vec![Token::Text("Freetime")]),
+            Token::Newline,
+            Token::Blank,
+            Token::Newline,
+            Token::Text("After school I went home"),
+            Token::Newline,
+            Token::Blank,
+            Token::Newline,
+            Token::Task { content: vec![Token::Text("Clean room")], status: TaskStatus::Done },
+            Token::Newline,
+            Token::Blank,
+            Token::Newline,
+            Token::HRule,
+            Token::Newline,
+            Token::Blank,
+            Token::Newline,Token::HeadingH1(vec![
+                Token::Date(NaiveDate::from_ymd_opt(2022, 11, 3).unwrap())
+            ]),
+            Token::Newline,
+            Token::Blank,
+            Token::Newline,
+            Token::HeadingH2(vec![Token::Text("Meeting")]),
+            Token::Newline,
+            Token::Blank,
+            Token::Newline,
+            Token::Text("In the morning i had a meeting with "),
+            Token::Tag("roger"),
+            Token::Text(" ("),
+            Token::Email("roger.example@gmail.com"),
+            Token::Text(")."),
+            Token::Newline,
+            Token::Blank,
+            Token::Newline,
+            Token::Task { 
+                content: vec![Token::Text("Inform roger about the state of the project")], 
+                status: TaskStatus::Todo, 
+            },
+            Token::Newline,
+            Token::Blank,
+            Token::Newline,
+        ];
+        let should_sections = vec![
+            Section {
+                title: Token::HeadingH1(vec![
+                    Token::Date(NaiveDate::from_ymd_opt(2022, 11, 2).unwrap())
+                ]),
+                tags: vec![],
+                content: vec![Token::Newline, Token::Newline],
+                date: NaiveDate::from_ymd_opt(2022, 11 ,2).unwrap(),
+                section_type: SectionType::H1,
+                subsections: vec![
+                    Section {
+                        title: Token::HeadingH2(vec![Token::Text("School")]),
+                        tags: vec![String::from("school")],
+                        content: vec![
+                            Token::Newline,
+                            Token::Newline,
+                            Token::Tag("school"),
+                            Token::Newline,
+                            Token::Newline,
+                            Token::Text("Today in school something happened."),
+                            Token::Newline,
+                            Token::Newline,
+                        ],
+                        date: NaiveDate::from_ymd_opt(2022, 11 ,2).unwrap(),
+                        section_type: SectionType::H2,
+                        subsections: vec![],
+                    },
+                    Section {
+                        title: Token::HeadingH2(vec![Token::Text("Freetime")]),
+                        tags: vec![],
+                        content: vec![
+                            Token::Newline,
+                            Token::Newline,
+                            Token::Text("After school I went home"),
+                            Token::Newline,
+                            Token::Newline,
+                            Token::Task { content: vec![Token::Text("Clean room")], status: TaskStatus::Done },
+                            Token::Newline,
+                            Token::Newline,
+                            Token::Newline,
+                            Token::Newline,
+                        ],
+                        date: NaiveDate::from_ymd_opt(2022, 11 ,2).unwrap(),
+                        section_type: SectionType::H2,
+                        subsections: vec![],
+                    },
+                ],
+            },
+            Section {
+                title: Token::HeadingH1(vec![
+                    Token::Date(NaiveDate::from_ymd_opt(2022, 11, 3).unwrap())
+                ]),
+                tags: vec![],
+                content: vec![Token::Newline, Token::Newline],
+                date: NaiveDate::from_ymd_opt(2022, 11 ,3).unwrap(),
+                section_type: SectionType::H1,
+                subsections: vec![
+                    Section {
+                        title: Token::HeadingH2(vec![Token::Text("Meeting")]),
+                        tags: vec![String::from("roger")],
+                        content: vec![
+                            Token::Newline,
+                            Token::Newline,
+                            Token::Text("In the morning i had a meeting with "),
+                            Token::Tag("roger"),
+                            Token::Text(" ("),
+                            Token::Email("roger.example@gmail.com"),
+                            Token::Text(")."),
+                            Token::Newline,
+                            Token::Newline,
+                            Token::Task { 
+                                content: vec![Token::Text("Inform roger about the state of the project")], 
+                                status: TaskStatus::Todo, 
+                            },
+                            Token::Newline,
+                            Token::Newline,
+                        ],
+                        date: NaiveDate::from_ymd_opt(2022, 11 ,3).unwrap(),
+                        section_type: SectionType::H2,
+                        subsections: vec![],
+                    },
+                ],
+            }
+        ];
+        
+        assert_eq!(
+            mdp_section_builder.sections_from_tokens(tokens),
+            Ok(should_sections),
+        );
+        Ok(())
+    }
+}

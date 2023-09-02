@@ -3,7 +3,6 @@ use std::{cmp::Ordering, collections::HashMap};
 use anyhow::Result;
 
 use super::config::{TagListConfig, TagOrderingCriterion};
-// use crate::commands::io::read_mardown_file;
 use crate::{
     commands::io::{FileReader, OutputWriter},
     models::{Token, MarkdownTokenizer},

@@ -1,6 +1,6 @@
 use std::{error::Error, fmt, fmt::Display, path::PathBuf};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum MDPError {
     MarkdownParseError { msg: String, line_number: usize },
     MDPSyntaxError(String),
@@ -44,7 +44,7 @@ impl Display for MDPError {
 
 impl Error for MDPError {}
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ConfigError {
     IOError,
     InvalidSearchTermError,

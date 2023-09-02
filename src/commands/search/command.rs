@@ -7,7 +7,7 @@ use anyhow::Result;
 use super::config::{SearchTerm, SectionOrderingCriterion, TagSearchConfig, TagSearchMode};
 use crate::{
     commands::io::{FileReader, OutputWriter},
-    models::{MarkdownTokenizer, Section, SectionBuilder, SectionType, Sections},
+    models::{MarkdownTokenizer, Section, SectionBuilder, SectionType},
 };
 
 pub fn run<T, S, R>(
@@ -24,9 +24,8 @@ where
 {
     let markdown_string = reader.read_file(config.input_path.clone())?;
     let tokens = tokenizer.tokenize(&markdown_string)?;
-    // let SectionHierarchizedTokens(htokens) =
-    //     hierarchize_tokens_using_headings(tokens, hierarchizer);
     let sections = section_builder.sections_from_tokens(tokens)?;
+    
     let results = search(
         sections,
         config.search_terms,
@@ -50,7 +49,7 @@ pub struct SearchResultSection<'a> {
 }
 
 fn search(
-    Sections(sections): Sections,
+    sections: Vec<Section>,
     search_terms: Vec<SearchTerm>,
     mode: TagSearchMode,
     from: Option<NaiveDate>,

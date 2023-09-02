@@ -9,7 +9,6 @@ pub struct TaskConfig {
 
 #[derive(Clone, Debug)]
 pub enum TaskOrderingCriterion {
-    // Type,
     Urgency,
     Occurence,
 }

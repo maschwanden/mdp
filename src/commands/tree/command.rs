@@ -7,7 +7,7 @@ use super::config::TreeConfig;
 use crate::{
     commands::io::{FileReader, OutputWriter},
     models::{
-        Token, TokenType, MarkdownTokenizer, Section, SectionBuilder, Sections,
+        Token, TokenType, MarkdownTokenizer, Section, SectionBuilder,
     },
 };
 
@@ -35,10 +35,10 @@ where
     Ok(())
 }
 
-fn sections_as_ptree_string(sections: &Sections, debug: bool) -> String {
+fn sections_as_ptree_string(sections: &[Section], debug: bool) -> String {
     let mut tb = TreeBuilder::new("".to_string());
 
-    for section in &sections.0 {
+    for section in sections {
         add_section_to_tree(section, &mut tb, debug);
     }
 
@@ -69,8 +69,8 @@ fn add_section_to_tree(section: &Section, tb: &mut TreeBuilder, debug: bool) {
         };
     }
 
-    for s in &section.subsections.0 {
-        if s.subsections.0.is_empty() && s.content.is_empty() {
+    for s in &section.subsections {
+        if s.subsections.is_empty() && s.content.is_empty() {
             if token_is_empty(&s.title) {
                 tb.add_empty_child(match debug {
                     true => s.title.to_debug_string(),
@@ -78,7 +78,7 @@ fn add_section_to_tree(section: &Section, tb: &mut TreeBuilder, debug: bool) {
                 });
             };
         } else {
-            add_section_to_tree(s, tb, debug);
+            add_section_to_tree(&s, tb, debug);
         }
     }
 

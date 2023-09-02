@@ -151,7 +151,6 @@ fn latex(input: &str) -> IResult<&str, &str, MarkdownParseError<&str>> {
     fenced("$$", "$$")(input)
 }
 
-/// Parses `![alt](url)`
 fn image(input: &str) -> IResult<&str, (&str, &str), MarkdownParseError<&str>> {
     preceded(char('!'), markdown_link)(input)
 }
@@ -193,7 +192,6 @@ fn tag_token(input: &str) -> IResult<&str, &str, MarkdownParseError<&str>> {
     preceded(char('@'), word)(input)
 }
 
-/// Parses urls not inside a directive
 fn raw_url(input: &str) -> IResult<&str, &str, MarkdownParseError<&str>> {
     let mut locator = UrlLocator::new();
     let mut end = 0;
@@ -293,13 +291,6 @@ pub(super) fn attribute(
 ) -> IResult<&str, (&str, Vec<Token>), MarkdownParseError<&str>> {
     separated_pair(is_not(":`"), tag("::"), parse_inline)(input)
 }
-// pub enum TaskStatus {
-//     Todo,
-//     TodoUntil(NaiveDate),
-//     Doing,
-//     Rewiew,
-//     Done,
-// }
 
 pub(super) fn task(input: &str) -> IResult<&str, Token, MarkdownParseError<&str>> {
     let (task_description, task) = terminated(

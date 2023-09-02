@@ -1,4 +1,4 @@
-use super::{MDPError, Sections, Token};
+use super::{MDPError, Section, Token};
 
 pub trait MarkdownTokenizer {
     /// Tokenize Markdown string into Markdown tokens
@@ -7,5 +7,5 @@ pub trait MarkdownTokenizer {
 
 pub trait SectionBuilder {
     /// Create sections from Markdown tokens
-    fn sections_from_tokens<'a>(&self, tokens: Vec<Token<'a>>) -> Result<Sections<'a>, MDPError>;
+    fn sections_from_tokens<'a>(&self, tokens: Vec<Token<'a>>) -> Result<Vec<Section<'a>>, MDPError>;
 }

@@ -1,32 +1,26 @@
-use std::io::BufWriter;
-
 use anyhow::Result;
 use chrono::{NaiveDate, Utc};
-use ptree::{write_tree, TreeBuilder};
 
 use super::config::{TaskConfig, TaskFilterType, TaskOrderingCriterion};
 use crate::{
     commands::io::{FileReader, OutputWriter},
     models::{
-        Token, TokenType, MarkdownTokenizer, Section, SectionBuilder, Sections, TaskStatus,
+        Token, MarkdownTokenizer, TaskStatus,
     },
 };
 
 pub fn run<T, R>(
     config: TaskConfig,
     tokenizer: T,
-    // section_builder: S,
     reader: R,
     writers: Vec<Box<dyn OutputWriter>>,
 ) -> Result<()>
 where
     T: MarkdownTokenizer,
-    // S: SectionBuilder,
     R: FileReader,
 {
     let markdown_string = reader.read_file(config.input_path.clone())?;
     let tokens = tokenizer.tokenize(&markdown_string)?;
-    // let sections = section_builder.sections_from_tokens(tokens)?;
 
     let tasks = tasks_from_tokens(tokens);
     let tasks = filter_tasks(tasks, config.filter);
@@ -110,50 +104,9 @@ fn order_tasks(tasks: Vec<Task>, ordering: TaskOrderingCriterion) -> Vec<Task> {
             ordered_tasks.sort_by_key(|t| t.urgency()); 
             ordered_tasks
         },
-        // TaskOrderingCriterion::Type => tasks,
     }
 }
 
 fn tasks_as_strings(tasks:  Vec<Task>) -> Vec<String> {
     tasks.iter().map(|t| Token::from(t).to_markdown_string()).collect()
 }
-
-// fn add_section_to_tree(section: &Section, tb: &mut TreeBuilder, debug: bool) {
-//     tb.begin_child(match debug {
-//         true => section.title.to_debug_string(),
-//         false => section.title.to_markdown_string(),
-//     });
-
-//     for c in &section.content {
-//         match c.token_type() {
-//             TokenType::Newline | TokenType::Blankline => continue,
-//             _ => {
-//                 if !token_is_empty(c) {
-//                     tb.add_empty_child(match debug {
-//                         true => c.to_debug_string(),
-//                         false => c.to_markdown_string(),
-//                     });
-//                 };
-//             }
-//         };
-//     }
-
-//     for s in &section.subsections.0 {
-//         if s.subsections.0.is_empty() && s.content.is_empty() {
-//             if token_is_empty(&s.title) {
-//                 tb.add_empty_child(match debug {
-//                     true => s.title.to_debug_string(),
-//                     false => s.title.to_markdown_string(),
-//                 });
-//             };
-//         } else {
-//             add_section_to_tree(s, tb, debug);
-//         }
-//     }
-
-//     tb.end_child();
-// }
-
-// fn token_is_empty(token: &Token) -> bool {
-//     token.to_markdown_string().trim().is_empty()
-// }
