@@ -1,0 +1,34 @@
+
+[package]
+name = "mdp"
+version = "0.2.0"
+edition = "2021"
+authors = ["Mathias Aschwanden <mathias.aschwanden@gmail.ch>"]
+
+[target.x86_64-pc-windows-gnu]
+rustflags = ["-C", "target-feature=+crt-static"]
+
+[lib]
+name = "mdp"
+path = "src/lib.rs"
+
+[[bin]]
+name = "mdp"
+path = "src/bin/cli/main.rs"
+
+[dependencies]
+nom = "7.1.1"
+chrono = "0.4.24"
+clap = { version = "4.0", features = ["derive"] }
+anyhow = "*"
+iso8601 = "0.6.1"
+urlocator = "*"
+email-address-parser = "2.0.0"
+log = "0.4.20"
+simple_logger = "4.2.0"
+ptree = "0.4.0"
+
+[dev-dependencies]
+test-case = "*"
+pretty_assertions = "1.4.0"
+lazy_static = "1.4.0"
