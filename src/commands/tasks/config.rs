@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 #[derive(Clone, Debug)]
 pub struct TasksConfig {
-    pub input_path: PathBuf,
+    pub input_path: Vec<PathBuf>,
     pub output_path: Option<PathBuf>,
     pub ordering: TaskOrderingCriterion,
     pub filter: TaskFilterType,

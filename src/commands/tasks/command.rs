@@ -17,7 +17,7 @@ where
     T: MarkdownTokenizer,
     R: FileReader,
 {
-    let markdown_string = reader.read_file(config.input_path.clone())?;
+    let markdown_string = reader.read(config.input_path.clone())?;
     let tokens = tokenizer.tokenize(&markdown_string)?;
 
     let tasks = tasks_from_tokens(tokens);

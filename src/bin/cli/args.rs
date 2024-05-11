@@ -33,9 +33,9 @@ pub enum Command {
 /// List tags
 #[derive(Args, Debug, Clone)]
 pub struct TagsCommandArgs {
-    /// The path to the markdown file
-    #[arg()]
-    pub input_path: PathBuf,
+    /// One or multiple paths to the markdown files
+    #[arg(short = 'i', long = "input")]
+    pub input_path: Vec<PathBuf>,
 
     /// Export list to file
     #[arg(short = 'o', long = "output", default_value = None)]
@@ -66,17 +66,17 @@ impl TryFrom<TagsCommandArgs> for TagsConfig {
 /// Search for tags
 #[derive(Args, Debug, Clone)]
 pub struct SearchCommandArgs {
-    /// The path to the markdown file
-    #[arg()]
-    pub input_path: PathBuf,
+    /// The tag(s) to look for (comma-separated)
+    #[arg(name = "TERM")]
+    pub search_string: String,
+
+    /// One or multiple paths to the markdown files
+    #[arg(short = 'i', long = "input")]
+    pub input_path: Vec<PathBuf>,
 
     /// Export list to file
     #[arg(short = 'o', long = "output", default_value = "./search.md")]
     pub output_path: PathBuf,
-
-    /// The tag(s) to look for (comma-separated)
-    #[arg(name = "TERM")]
-    pub search_string: String,
 
     /// Defines how multiple search terms are logically combined
     #[arg(long = "mode", rename_all = "UPPER", default_value = "or")]
@@ -134,9 +134,9 @@ impl TryFrom<SearchCommandArgs> for SearchConfig {
 /// Show tree of Markdown content/tokens
 #[derive(Args, Debug, Clone)]
 pub struct TreeCommandArgs {
-    /// The path to the markdown file
-    #[arg()]
-    pub input_path: PathBuf,
+    /// One or multiple paths to the markdown files
+    #[arg(short = 'i', long = "input")]
+    pub input_path: Vec<PathBuf>,
 
     /// Activate debug mode: Print everything using debug representation
     #[clap(long = "debug", global = false)]
@@ -157,9 +157,9 @@ impl TryFrom<TreeCommandArgs> for TreeConfig {
 /// Show all tasks (TODO, TODO UNTIL <DATE>, DOING, REVIEW, DONE)
 #[derive(Args, Debug, Clone)]
 pub struct TasksCommandArgs {
-    /// The path to the markdown file
-    #[arg()]
-    pub input_path: PathBuf,
+    /// One or multiple paths to the markdown files
+    #[arg(short = 'i', long = "input")]
+    pub input_path: Vec<PathBuf>,
 
     /// Export task list to a file
     #[arg(short = 'o', long = "output", default_value = None)]

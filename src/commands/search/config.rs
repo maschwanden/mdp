@@ -4,7 +4,7 @@ use chrono::NaiveDate;
 
 #[derive(Clone, Debug)]
 pub struct SearchConfig {
-    pub input_path: PathBuf,
+    pub input_path: Vec<PathBuf>,
     pub output_path: PathBuf,
     pub ordering: SectionOrderingCriterion,
     pub search_terms: Vec<SearchTerm>,
