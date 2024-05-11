@@ -28,13 +28,16 @@ where
 
     let results = search(
         sections,
-        config.search_terms,
-        config.search_mode,
+        config.search_terms.clone(),
+        config.search_mode.clone(),
         config.from,
         config.until,
     );
 
-    let output_string = search_results_to_string(results, config.ordering);
+    let search_result_string = search_results_to_string(results, config.ordering.clone());
+    let search_summary = search_summary(config.clone());
+    let output_string = format!("{}\n\n{}", search_result_string, search_summary);
+
     for writer in writers {
         writer.write_output(&output_string)?;
     }
@@ -134,6 +137,35 @@ fn search_results_to_string(
     }
 
     section_strings.join("\n\n---\n\n")
+}
+
+fn search_summary(config: SearchConfig) -> String {
+    let tags = config.search_terms.iter().map(|t| t.inner()).collect::<Vec<_>>().join(", ");
+    let mode = match config.search_mode {
+        TagSearchMode::Or => "OR",
+        TagSearchMode::And => "AND",
+    };
+    let from = match config.from {
+        Some(d) => d.to_string(),
+        None => String::new(),
+    };
+    let until = match config.until {
+        Some(d) => d.to_string(),
+        None => "".to_string(),
+    };
+    let ordering = match config.ordering {
+        SectionOrderingCriterion::Date => "date",
+        SectionOrderingCriterion::Relevance => "relevance",
+    };
+
+    format!(
+        "SEARCHED FOR TAGS: {}\nMODE: {}\nFROM: {}\nTO: {}\nORDERING: {}\n",
+        tags,
+        mode,
+        from,
+        until,
+        ordering,
+    )
 }
 
 fn ordered_search_result_sections(
