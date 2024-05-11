@@ -1,14 +1,14 @@
 use anyhow::Result;
 use chrono::{NaiveDate, Utc};
 
-use super::config::{TaskConfig, TaskFilterType, TaskOrderingCriterion};
+use super::config::{TasksConfig, TaskFilterType, TaskOrderingCriterion};
 use crate::{
     commands::io::{FileReader, OutputWriter},
     models::{MarkdownTokenizer, TaskStatus, Token},
 };
 
 pub fn run<T, R>(
-    config: TaskConfig,
+    config: TasksConfig,
     tokenizer: T,
     reader: R,
     writers: Vec<Box<dyn OutputWriter>>,

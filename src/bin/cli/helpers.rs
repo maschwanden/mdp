@@ -1,6 +1,6 @@
 use clap::ValueEnum;
 
-use mdp::commands::{list, search, task};
+use mdp::commands::{tags, search, tasks};
 
 #[derive(Clone, Debug, ValueEnum)]
 pub enum TagOrderingCriterion {
@@ -8,7 +8,7 @@ pub enum TagOrderingCriterion {
     Alphabetic,
 }
 
-impl From<TagOrderingCriterion> for list::config::TagOrderingCriterion {
+impl From<TagOrderingCriterion> for tags::config::TagOrderingCriterion {
     fn from(criterion: TagOrderingCriterion) -> Self {
         match criterion {
             TagOrderingCriterion::Count => Self::Count,
@@ -54,7 +54,7 @@ pub enum TaskOrderingCriterion {
     Occurence,
 }
 
-impl From<TaskOrderingCriterion> for task::config::TaskOrderingCriterion {
+impl From<TaskOrderingCriterion> for tasks::config::TaskOrderingCriterion {
     fn from(value: TaskOrderingCriterion) -> Self {
         match value {
             // TaskOrderingCriterion::Type => Self::Type,
@@ -71,7 +71,7 @@ pub enum TaskFilterType {
     Finished,
 }
 
-impl From<TaskFilterType> for task::config::TaskFilterType {
+impl From<TaskFilterType> for tasks::config::TaskFilterType {
     fn from(mode: TaskFilterType) -> Self {
         match mode {
             TaskFilterType::All => Self::All,

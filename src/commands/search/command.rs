@@ -4,14 +4,14 @@ use chrono::NaiveDate;
 
 use anyhow::Result;
 
-use super::config::{SearchTerm, SectionOrderingCriterion, TagSearchConfig, TagSearchMode};
+use super::config::{SearchTerm, SectionOrderingCriterion, SearchConfig, TagSearchMode};
 use crate::{
     commands::io::{FileReader, OutputWriter},
     models::{MarkdownTokenizer, Section, SectionBuilder, SectionType},
 };
 
 pub fn run<T, S, R>(
-    config: TagSearchConfig,
+    config: SearchConfig,
     tokenizer: T,
     section_builder: S,
     reader: R,

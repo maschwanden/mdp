@@ -6,9 +6,9 @@ use clap::{Args, Parser, Subcommand};
 use super::helpers::*;
 use mdp::{
     commands::{
-        list::config::TagListConfig,
-        search::config::{SearchTerm, TagSearchConfig},
-        task::config::TaskConfig,
+        tags::config::TagsConfig,
+        search::config::{SearchTerm, SearchConfig},
+        tasks::config::TasksConfig,
         tree::config::TreeConfig,
     },
     models::ConfigError,
@@ -24,9 +24,9 @@ pub struct CliArgs {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum Command {
-    Search(TagSearchCommandArgs),
+    Search(SearchCommandArgs),
     Tags(TagsCommandArgs),
-    TokenTree(TokenTreeCommandArgs),
+    Tree(TreeCommandArgs),
     Tasks(TasksCommandArgs),
 }
 
@@ -51,7 +51,7 @@ pub struct TagsCommandArgs {
     pub ordering: TagOrderingCriterion,
 }
 
-impl TryFrom<TagsCommandArgs> for TagListConfig {
+impl TryFrom<TagsCommandArgs> for TagsConfig {
     type Error = ConfigError;
 
     fn try_from(args: TagsCommandArgs) -> Result<Self, Self::Error> {
@@ -65,7 +65,7 @@ impl TryFrom<TagsCommandArgs> for TagListConfig {
 
 /// Search for tags
 #[derive(Args, Debug, Clone)]
-pub struct TagSearchCommandArgs {
+pub struct SearchCommandArgs {
     /// The path to the markdown file
     #[arg()]
     pub input_path: PathBuf,
@@ -104,10 +104,10 @@ pub struct TagSearchCommandArgs {
     pub until: Option<NaiveDate>,
 }
 
-impl TryFrom<TagSearchCommandArgs> for TagSearchConfig {
+impl TryFrom<SearchCommandArgs> for SearchConfig {
     type Error = ConfigError;
 
-    fn try_from(args: TagSearchCommandArgs) -> Result<Self, Self::Error> {
+    fn try_from(args: SearchCommandArgs) -> Result<Self, Self::Error> {
         Ok(Self {
             input_path: args.input_path,
             output_path: args.output_path,
@@ -133,7 +133,7 @@ impl TryFrom<TagSearchCommandArgs> for TagSearchConfig {
 
 /// Show tree of Markdown content/tokens
 #[derive(Args, Debug, Clone)]
-pub struct TokenTreeCommandArgs {
+pub struct TreeCommandArgs {
     /// The path to the markdown file
     #[arg()]
     pub input_path: PathBuf,
@@ -143,10 +143,10 @@ pub struct TokenTreeCommandArgs {
     pub debug: bool,
 }
 
-impl TryFrom<TokenTreeCommandArgs> for TreeConfig {
+impl TryFrom<TreeCommandArgs> for TreeConfig {
     type Error = ConfigError;
 
-    fn try_from(args: TokenTreeCommandArgs) -> Result<Self, Self::Error> {
+    fn try_from(args: TreeCommandArgs) -> Result<Self, Self::Error> {
         Ok(Self {
             input_path: args.input_path,
             debug: args.debug,
@@ -160,6 +160,10 @@ pub struct TasksCommandArgs {
     /// The path to the markdown file
     #[arg()]
     pub input_path: PathBuf,
+
+    /// Export task list to a file
+    #[arg(short = 'o', long = "output", default_value = None)]
+    pub output_path: Option<PathBuf>,
 
     /// Only show tasks of the chosen kind
     #[arg(long = "show", rename_all = "UPPER", default_value = "unfinished")]
@@ -175,12 +179,13 @@ pub struct TasksCommandArgs {
     pub ordering: TaskOrderingCriterion,
 }
 
-impl TryFrom<TasksCommandArgs> for TaskConfig {
+impl TryFrom<TasksCommandArgs> for TasksConfig {
     type Error = ConfigError;
 
     fn try_from(args: TasksCommandArgs) -> Result<Self, Self::Error> {
         Ok(Self {
             input_path: args.input_path,
+            output_path: args.output_path,
             ordering: args.ordering.into(),
             filter: args.filter.into(),
         })

@@ -1,5 +1,5 @@
 pub mod io;
-pub mod list;
+pub mod tags;
 pub mod search;
-pub mod task;
+pub mod tasks;
 pub mod tree;
