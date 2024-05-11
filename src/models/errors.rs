@@ -1,10 +1,13 @@
 use std::{error::Error, fmt, fmt::Display, path::PathBuf};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum MDPError {
     MarkdownParseError { msg: String, line_number: usize },
     MDPSyntaxError(String),
-    IOReadError(PathBuf),
+    IOReadError {
+        path: PathBuf,
+        details: String,
+    },
     IOWriteError(PathBuf),
     IOError(String),
     ConfigError(ConfigError),
@@ -21,9 +24,9 @@ impl Display for MDPError {
                 msg.to_owned()
             ),
             Self::MDPSyntaxError(s) => s.to_owned(),
-            Self::IOReadError(f) => match f.to_str() {
-                Some(ff) => format!("An error occured while reading the following file: {}", ff),
-                None => "An error occured while reading a file".to_string(),
+            Self::IOReadError{ path, details } => match path.to_str() {
+                Some(f) => format!("An error occured while reading the file {}: {}", f, details),
+                None => format!("An error occured while reading a file: {}", details),
             },
             Self::IOWriteError(f) => match f.to_str() {
                 Some(ff) => format!("An error occured while writing the following file: {}", ff),
@@ -46,7 +49,7 @@ impl Display for MDPError {
 
 impl Error for MDPError {}
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ConfigError {
     IOError,
     InvalidSearchTermError,

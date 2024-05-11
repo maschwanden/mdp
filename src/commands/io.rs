@@ -3,16 +3,58 @@ use std::{fs, path::{PathBuf, Path}};
 use crate::models::MDPError;
 
 pub trait FileReader {
-    fn read_file(&self, path: PathBuf) -> Result<String, MDPError>;
+    fn read(&self, paths: Vec<PathBuf>) -> Result<String, MDPError>;
 }
 
 pub struct MarkdownFileReader {}
 
 impl FileReader for MarkdownFileReader {
-    fn read_file(&self, path: PathBuf) -> Result<String, MDPError> {
-        fs::read_to_string(path.as_path()).map_err(|_| MDPError::IOReadError(path))
+    fn read(&self, paths: Vec<PathBuf>) -> Result<String, MDPError> {
+        let mut s = String::new();
+
+        for path in all_md_files(paths)? {
+            s = format!("{}\n\n{}", s, fs::read_to_string(path.as_path()).map_err(|e| {
+                MDPError::IOReadError{
+                    path,
+                    details: e.to_string(),
+                }
+            })?);
+        }
+
+        Ok(s)
     }
+
 }
+
+/// Returns all markdown files, i.e. find all markdown files in provided directories.
+fn all_md_files(paths: Vec<PathBuf>) -> Result<Vec<PathBuf>, MDPError> {
+    let mut res: Vec<PathBuf> = vec![];
+
+    for path in paths {
+        if path.is_dir() {
+            let dir_iter_err = MDPError::IOError(
+                format!("error while traversing the directory {}", path.to_string_lossy().into_owned())
+            );
+            for entry in fs::read_dir(path).map_err(|_| dir_iter_err.clone())? {
+                let entry = entry.map_err(|_| dir_iter_err.clone())?;
+                let p = entry.path();
+                if is_md_file(&p) {
+                    res.push(p);
+                }
+            }
+        } else {
+            res.push(path);
+        }
+    }
+
+    Ok(res)
+}
+
+fn is_md_file<P: AsRef<Path>>(path: &P) -> bool {
+    let path = path.as_ref();
+    path.is_file() && path.extension().map_or(false, |ext| ext == "md")
+}
+
 
 pub trait OutputWriter {
     fn write_output(&self, output: &str) -> Result<(), MDPError>;
@@ -38,12 +80,10 @@ impl OutputWriter for FileWriter {
         }
 
         fs::write(self.path.clone(), output)
-            .map_err(|e| {
-                dbg!(e);
-                MDPError::IOReadError(self.path.clone())
-            })?;
+            .map_err(|e| MDPError::IOReadError { path: self.path.clone(), details: e.to_string()})?;
 
         self.make_read_only()?;
+
         Ok(())
     }
 }

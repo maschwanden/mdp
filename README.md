@@ -63,7 +63,7 @@ Options:
 ### List tags
 
 ``` 
-$ mdp tags data/mdp_example_file1.md
+$ mdp tags -i data/mdp_example_file1.md
 Tag                       Count
 roger                         1
 school                        1
@@ -72,7 +72,7 @@ school                        1
 ### Search for tags
 
 ```
-$ mdp search data/mdp_example_file1.md roger
+$ mdp search -i data/mdp_example_file1.md roger
 # 2022-11-03
 
 ## Meeting
