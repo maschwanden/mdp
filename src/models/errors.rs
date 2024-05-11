@@ -6,6 +6,7 @@ pub enum MDPError {
     MDPSyntaxError(String),
     IOReadError(PathBuf),
     IOWriteError(PathBuf),
+    IOError(String),
     ConfigError(ConfigError),
 
     MultiError(Vec<MDPError>),
@@ -28,6 +29,7 @@ impl Display for MDPError {
                 Some(ff) => format!("An error occured while writing the following file: {}", ff),
                 None => "An error occured while writing a file".to_string(),
             },
+            Self::IOError(s) => s.to_string(),
             Self::ConfigError(e) => e.to_string(),
             Self::MultiError(errors) => format!(
                 "Multiple errors occured:\n{}",
