@@ -9,7 +9,7 @@ use crate::args::{CliArgs, Command};
 use mdp::{
     commands::{
         io::{FileWriter, MarkdownFileReader, OutputWriter, StdoutWriter},
-        list, search, task, tree,
+        tags::{self, config::TagsConfig}, search::{self, config::SearchConfig}, tasks, tree::{self, config::TreeConfig},
     },
     markdown::{MDPMarkdownTokenizer, MDPSectionBuilder},
 };
@@ -20,7 +20,7 @@ fn main() -> Result<()> {
 
     match &cli.command {
         Command::Search(cmd_args) => {
-            let config = search::config::TagSearchConfig::try_from(cmd_args.to_owned())?;
+            let config = SearchConfig::try_from(cmd_args.to_owned())?;
             let output_path = config.output_path.to_owned();
             search::command::run(
                 config,
@@ -35,7 +35,7 @@ fn main() -> Result<()> {
         }
 
         Command::Tags(cmd_args) => {
-            let config = list::config::TagListConfig::try_from(cmd_args.to_owned())?;
+            let config = TagsConfig::try_from(cmd_args.to_owned())?;
 
             let mut writers: Vec<Box<dyn OutputWriter>> = vec![Box::new(StdoutWriter {})];
             if let Some(output_path) = &config.output_path {
@@ -44,7 +44,7 @@ fn main() -> Result<()> {
                 }));
             }
 
-            list::command::run(
+            tags::command::run(
                 config,
                 MDPMarkdownTokenizer {},
                 MarkdownFileReader {},
@@ -52,8 +52,8 @@ fn main() -> Result<()> {
             )?
         }
 
-        Command::TokenTree(cmd_args) => {
-            let config = tree::config::TreeConfig::try_from(cmd_args.to_owned())?;
+        Command::Tree(cmd_args) => {
+            let config = TreeConfig::try_from(cmd_args.to_owned())?;
             tree::command::run(
                 config,
                 MDPMarkdownTokenizer {},
@@ -64,12 +64,20 @@ fn main() -> Result<()> {
         }
 
         Command::Tasks(cmd_args) => {
-            let config = task::config::TaskConfig::try_from(cmd_args.to_owned())?;
-            task::command::run(
+            let config = tasks::config::TasksConfig::try_from(cmd_args.to_owned())?;
+
+            let mut writers: Vec<Box<dyn OutputWriter>> = vec![Box::new(StdoutWriter {})];
+            if let Some(output_path) = &config.output_path {
+                writers.push(Box::new(FileWriter {
+                    path: output_path.to_owned(),
+                }));
+            }
+
+            tasks::command::run(
                 config,
                 MDPMarkdownTokenizer {},
                 MarkdownFileReader {},
-                vec![Box::new(StdoutWriter {})],
+                writers,
             )?
         }
     };

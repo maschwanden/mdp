@@ -2,14 +2,14 @@ use std::{cmp::Ordering, collections::HashMap};
 
 use anyhow::Result;
 
-use super::config::{TagListConfig, TagOrderingCriterion};
+use super::config::{TagsConfig, TagOrderingCriterion};
 use crate::{
     commands::io::{FileReader, OutputWriter},
     models::{MarkdownTokenizer, Token},
 };
 
 pub fn run<T, R>(
-    config: TagListConfig,
+    config: TagsConfig,
     tokenizer: T,
     reader: R,
     writers: Vec<Box<dyn OutputWriter>>,

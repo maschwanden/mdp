@@ -3,7 +3,7 @@ use std::{error::Error, fmt, path::PathBuf};
 use chrono::NaiveDate;
 
 #[derive(Clone, Debug)]
-pub struct TagSearchConfig {
+pub struct SearchConfig {
     pub input_path: PathBuf,
     pub output_path: PathBuf,
     pub ordering: SectionOrderingCriterion,

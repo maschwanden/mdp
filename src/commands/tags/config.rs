@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 #[derive(Clone, Debug)]
-pub struct TagListConfig {
+pub struct TagsConfig {
     pub input_path: PathBuf,
     pub ordering: TagOrderingCriterion,
     pub output_path: Option<PathBuf>,

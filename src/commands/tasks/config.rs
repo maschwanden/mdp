@@ -1,8 +1,9 @@
 use std::path::PathBuf;
 
 #[derive(Clone, Debug)]
-pub struct TaskConfig {
+pub struct TasksConfig {
     pub input_path: PathBuf,
+    pub output_path: Option<PathBuf>,
     pub ordering: TaskOrderingCriterion,
     pub filter: TaskFilterType,
 }
