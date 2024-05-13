@@ -45,25 +45,25 @@ TODO: Inform roger about the state of the project
 ### Show help
 
 ```
-$ mdp --help 
+$ mdp --help
 Usage: mdp <COMMAND>
 
 Commands:
-search      Search for tags
-tags        List tags
-token-tree  Show tree of Markdown content/tokens
-tasks       Show all tasks (TODO, TODO UNTIL <DATE>, DOING, REVIEW, DONE)
-help        Print this message or the help of the given subcommand(s)
+  search  Search for tags
+  tags    List tags
+  tree    Show tree of Markdown content/tokens
+  tasks   Show all tasks (TODO, TODO UNTIL <DATE>, DOING, REVIEW, DONE)
+  help    Print this message or the help of the given subcommand(s)
 
 Options:
--h, --help     Print help
--V, --version  Print version
+  -h, --help     Print help
+  -V, --version  Print version
 ```
 
 ### List tags
 
-``` 
-$ mdp tags -i data/mdp_example_file1.md
+```
+$ mdp tags -i examples/mdp_example_file1.md
 Tag                       Count
 roger                         1
 school                        1
@@ -72,25 +72,32 @@ school                        1
 ### Search for tags
 
 ```
-$ mdp search -i data/mdp_example_file1.md roger
 # 2022-11-03
 
 ## Meeting
 
 In the morning i had a meeting with @roger (roger.example@gmail.com).
+
+TODO: Inform roger about the state of the project
+
+SEARCHED FOR TAGS: roger
+MODE: OR
+FROM:
+TO:
+ORDERING: date
 ```
 
 ### List tasks
 
 ```
-$ mdp tasks mdp_example_file1.md
+$ mdp tasks -i mdp_example_file1.md
 TODO: Inform roger about the state of the project
 ```
 
 ### Show token tree
 
 ```
-$ mdp token-tree mdp_example_file1.md
+$ mdp tree -i mdp_example_file1.md
 
 ├─ # 2022-11-02
 │  ├─ ## School
@@ -116,7 +123,7 @@ You have a question about the package or you would like to have a certain featur
 
 ## Authors
 
-* **Mathias Aschwanden** 
+* **Mathias Aschwanden**
 
 ## License
 
