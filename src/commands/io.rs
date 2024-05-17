@@ -107,17 +107,26 @@ impl FileWriter {
     #[cfg(windows)]
     /// Set file permissions to read-only.
     fn make_read_only(&self) -> Result<(), MDPError> {
-        let metadata = fs::metadata(self.path.as_path()).map_err(|_|
-            MDPError::IOError("could not set file read only".to_string())
-        )?;
+        let err = MDPError::IOError("could not remove read only flag from file".to_string());
+        let metadata = fs::metadata(self.path.as_path()).map_err(|_| err.clone())?;
         let mut permissions = metadata.permissions();
         permissions.set_readonly(true);
-        fs::set_permissions(self.path.as_path(), permissions).map_err(|_|
-            MDPError::IOError("could not set file read only".to_string())
-        )
+        fs::set_permissions(self.path.as_path(), permissions).map_err(|_| err)
     }
 
+    #[cfg(unix)]
     fn delete_file(&self) -> Result<(), MDPError> {
+        fs::remove_file(&self.path).map_err(|_| MDPError::IOError("could not delete file".to_string()))
+    }
+
+    #[cfg(windows)]
+    fn delete_file(&self) -> Result<(), MDPError> {
+        let err = MDPError::IOError("could not remove read only flag from file".to_string());
+        let metadata = fs::metadata(self.path.as_path()).map_err(|_| err.clone())?;
+        let mut permissions = metadata.permissions();
+        permissions.set_readonly(false);
+        fs::set_permissions(self.path.as_path(), permissions).map_err(|_| err)?;
+
         fs::remove_file(&self.path).map_err(|_| MDPError::IOError("could not delete file".to_string()))
     }
 
